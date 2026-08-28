@@ -3,5 +3,17 @@
     "id": 1,
     "description": "Buy milk",
     "done": false
+  },
+  {
+    "id": 2,
+    "description": "High priority test",
+    "done": false,
+    "priority": "high"
+  },
+  {
+    "id": 3,
+    "description": "Low priority test",
+    "done": false,
+    "priority": "low"
   }
 ]
