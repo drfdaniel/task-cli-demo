@@ -8,7 +8,7 @@ Claude Code against a real repo.
 
 Usage:
     python task_cli.py add "Buy milk" [--priority low|medium|high]
-    python task_cli.py list
+    python task_cli.py list [--sort priority]
     python task_cli.py done 1
     python task_cli.py remove 1
 
@@ -22,6 +22,7 @@ from pathlib import Path
 DATA_FILE = Path("tasks.json")
 PRIORITIES = ("low", "medium", "high")
 DEFAULT_PRIORITY = "medium"
+PRIORITY_ORDER = {"high": 0, "medium": 1, "low": 2}
 
 
 def load_tasks():
@@ -44,11 +45,13 @@ def add_task(description, priority=DEFAULT_PRIORITY):
     print(f"Added task #{new_id} [{priority}]: {description}")
 
 
-def list_tasks():
+def list_tasks(sort=None):
     tasks = load_tasks()
     if not tasks:
         print("No tasks yet. Add one with: python task_cli.py add \"Your task\"")
         return
+    if sort == "priority":
+        tasks = sorted(tasks, key=lambda t: PRIORITY_ORDER.get(t.get("priority", DEFAULT_PRIORITY), 1))
     for t in tasks:
         status = "✔" if t["done"] else " "
         priority = t.get("priority", DEFAULT_PRIORITY)
@@ -99,7 +102,15 @@ def main():
             return
         add_task(description, priority)
     elif command == "list":
-        list_tasks()
+        args = sys.argv[2:]
+        sort = None
+        if "--sort" in args:
+            idx = args.index("--sort")
+            if idx + 1 >= len(args) or args[idx + 1] != "priority":
+                print("--sort must be one of: priority")
+                return
+            sort = args[idx + 1]
+        list_tasks(sort)
     elif command == "done" and len(sys.argv) == 3:
         complete_task(int(sys.argv[2]))
     elif command == "remove" and len(sys.argv) == 3:
